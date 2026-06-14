@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPSS Tarih – Cevap Anahtarı</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --card: #22263a; --border: #2e3350;
+    --accent: #5b6ef7; --accent2: #7c8bff; --text: #e8eaf6; --muted: #8890b5;
+    --green: #4caf87; --red: #e05c6a; --gold: #f5c842; --radius: 12px;
+  }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:32px 16px 60px; }
+  header { text-align:center; margin-bottom:36px; }
+  header h1 { font-size:1.8rem; font-weight:700; letter-spacing:-0.5px; }
+  header h1 span { color:var(--accent2); }
+  header p { margin-top:6px; color:var(--muted); font-size:0.9rem; }
+  .container { width:100%; max-width:680px; }
+
+  /* TABS */
+  .tab-bar { display:flex; gap:4px; background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:4px; margin-bottom:24px; }
+  .tab-btn { flex:1; padding:9px; border:none; background:none; color:var(--muted); font-size:0.85rem; font-weight:600; border-radius:8px; cursor:pointer; transition:all 0.18s; }
+  .tab-btn.active { background:var(--accent); color:#fff; }
+
+  /* SECTION LABEL */
+  .section-label { font-size:0.72rem; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+
+  /* TOPIC GRID */
+  .topic-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .topic-btn { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:14px 12px; cursor:pointer; text-align:left; transition:border-color 0.18s,background 0.18s,transform 0.12s; position:relative; }
+  .topic-btn:hover { border-color:var(--accent); background:var(--card); transform:translateY(-1px); }
+  .topic-btn.done { border-color:var(--green); }
+  .topic-btn .topic-name { font-size:0.88rem; font-weight:600; color:var(--text); line-height:1.35; }
+  .topic-btn .topic-count { font-size:0.75rem; color:var(--muted); margin-top:4px; }
+  .topic-btn .done-badge { position:absolute; top:10px; right:10px; background:var(--green); color:#fff; font-size:0.65rem; font-weight:700; border-radius:20px; padding:2px 7px; }
+
+  /* BACK BTN */
+  .back-btn { display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:0.85rem; margin-bottom:20px; padding:0; transition:color 0.15s; }
+  .back-btn:hover { color:var(--text); }
+  .topic-title { font-size:1.2rem; font-weight:700; margin-bottom:6px; color:var(--accent2); }
+
+  /* TEST LIST */
+  .test-list { display:flex; flex-direction:column; gap:8px; }
+  .test-btn { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:14px 18px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; transition:border-color 0.18s,background 0.18s; width:100%; }
+  .test-btn:hover { border-color:var(--accent); background:var(--card); }
+  .test-btn.completed { border-color:var(--green); }
+  .test-btn .test-name { font-size:0.9rem; font-weight:600; color:var(--text); }
+  .test-btn .test-meta { font-size:0.78rem; color:var(--muted); margin-top:2px; }
+  .test-btn-right { display:flex; align-items:center; gap:8px; }
+  .completed-tag { background:var(--green); color:#fff; font-size:0.68rem; font-weight:700; border-radius:20px; padding:3px 9px; }
+  .score-tag { background:var(--card); border:1px solid var(--border); color:var(--text); font-size:0.72rem; font-weight:600; border-radius:20px; padding:3px 9px; }
+  .del-btn { background:none; border:1.5px solid var(--border); border-radius:8px; color:var(--muted); font-size:0.8rem; padding:4px 8px; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+  .del-btn:hover { border-color:var(--red); color:var(--red); }
+
+  /* QUIZ */
+  .quiz-header { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:16px 20px; margin-bottom:16px; }
+  .quiz-topic { font-size:0.75rem; color:var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:0.8px; }
+  .quiz-test-name { font-size:1.05rem; font-weight:700; margin-top:2px; }
+  .progress-bar-wrap { margin-top:12px; background:var(--border); border-radius:99px; height:6px; overflow:hidden; }
+  .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; transition:width 0.35s ease; }
+  .progress-label { margin-top:6px; font-size:0.75rem; color:var(--muted); }
+
+  /* STATS ROW */
+  .stats-row { display:flex; gap:8px; margin-bottom:16px; }
+  .stat-box { flex:1; background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; text-align:center; }
+  .stat-box .stat-val { font-size:1.4rem; font-weight:800; }
+  .stat-box .stat-lbl { font-size:0.7rem; color:var(--muted); margin-top:1px; }
+  .stat-box.correct .stat-val { color:var(--green); }
+  .stat-box.wrong .stat-val { color:var(--red); }
+  .stat-box.remain .stat-val { color:var(--accent2); }
+
+  /* ANSWER CARD */
+  .answer-card { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:24px; text-align:center; margin-bottom:16px; }
+  .q-number { font-size:0.78rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+  .answer-bubble { display:inline-flex; align-items:center; justify-content:center; width:80px; height:80px; border-radius:50%; font-size:2.4rem; font-weight:800; margin:14px auto 18px; border:3px solid; }
+  .answer-bubble.A { color:#5b8ef7; border-color:#5b8ef7; background:rgba(91,142,247,0.1); }
+  .answer-bubble.B { color:#c97bff; border-color:#c97bff; background:rgba(201,123,255,0.1); }
+  .answer-bubble.C { color:var(--gold); border-color:var(--gold); background:rgba(245,200,66,0.1); }
+  .answer-bubble.D { color:var(--green); border-color:var(--green); background:rgba(76,175,135,0.1); }
+  .answer-bubble.E { color:var(--red); border-color:var(--red); background:rgba(224,92,106,0.1); }
+
+  /* CORRECT / WRONG BUTTONS */
+  .mark-row { display:flex; gap:10px; margin-bottom:14px; }
+  .mark-btn { flex:1; padding:13px; border-radius:var(--radius); font-size:0.95rem; font-weight:700; cursor:pointer; border:2px solid transparent; transition:all 0.18s; opacity:0.55; }
+  .mark-btn.correct-btn { background:rgba(76,175,135,0.12); color:var(--green); border-color:var(--green); }
+  .mark-btn.wrong-btn { background:rgba(224,92,106,0.12); color:var(--red); border-color:var(--red); }
+  .mark-btn.selected { opacity:1; transform:scale(1.03); }
+
+  /* NAV ROW */
+  .nav-row { display:flex; gap:10px; }
+  .btn-primary { flex:1; background:var(--accent); color:#fff; border:none; border-radius:var(--radius); padding:15px; font-size:1rem; font-weight:700; cursor:pointer; transition:background 0.18s,transform 0.12s; }
+  .btn-primary:hover { background:var(--accent2); transform:translateY(-1px); }
+  .btn-secondary { background:var(--surface); color:var(--text); border:1.5px solid var(--border); border-radius:var(--radius); padding:15px 18px; font-size:0.9rem; font-weight:600; cursor:pointer; transition:border-color 0.18s; white-space:nowrap; }
+  .btn-secondary:hover { border-color:var(--accent); }
+
+  /* FINISH */
+  .finish-card { background:var(--surface); border:2px solid var(--green); border-radius:var(--radius); padding:28px 20px; }
+  .finish-icon { font-size:2.6rem; margin-bottom:10px; text-align:center; }
+  .finish-card h2 { font-size:1.3rem; font-weight:800; color:var(--green); margin-bottom:6px; text-align:center; }
+  .finish-card > p { color:var(--muted); margin-bottom:18px; font-size:0.85rem; text-align:center; }
+  .finish-stats { display:flex; gap:8px; margin-bottom:18px; }
+  .finish-stat { flex:1; background:var(--card); border-radius:10px; padding:12px; text-align:center; }
+  .finish-stat .fs-val { font-size:1.6rem; font-weight:800; }
+  .finish-stat .fs-lbl { font-size:0.7rem; color:var(--muted); }
+  .finish-stat.fc .fs-val { color:var(--green); }
+  .finish-stat.fw .fs-val { color:var(--red); }
+  .finish-stat.fn .fs-val { color:var(--muted); }
+
+  /* ANSWERS GRID */
+  .all-answers-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 0; }
+  .ans-cell { background:var(--card); border-radius:8px; padding:8px; text-align:center; position:relative; }
+  .ans-cell .ans-q { font-size:0.68rem; color:var(--muted); }
+  .ans-cell .ans-v { font-size:1.1rem; font-weight:800; margin-top:2px; }
+  .ans-cell .ans-v.A { color:#5b8ef7; } .ans-cell .ans-v.B { color:#c97bff; }
+  .ans-cell .ans-v.C { color:var(--gold); } .ans-cell .ans-v.D { color:var(--green); }
+  .ans-cell .ans-v.E { color:var(--red); }
+  .ans-cell.wrong-cell { border:1.5px solid var(--red); }
+  .ans-cell.correct-cell { border:1.5px solid var(--green); }
+  .ans-cell .mark-icon { position:absolute; top:4px; right:5px; font-size:0.65rem; }
+
+  /* WRONG LIST (Yanlışlarım tab) */
+  /* topic accordion */
+  .wl-topic-card { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); margin-bottom:10px; overflow:hidden; }
+  .wl-topic-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; cursor:pointer; transition:background 0.15s; }
+  .wl-topic-header:hover { background:var(--card); }
+  .wl-topic-name { font-size:0.92rem; font-weight:700; color:var(--text); }
+  .wl-topic-meta { font-size:0.75rem; color:var(--muted); margin-top:2px; }
+  .wl-topic-right { display:flex; align-items:center; gap:10px; }
+  .wl-wrong-badge { background:rgba(224,92,106,0.18); color:var(--red); font-size:0.72rem; font-weight:700; border-radius:20px; padding:3px 9px; white-space:nowrap; }
+  .wl-chevron { color:var(--muted); font-size:0.85rem; transition:transform 0.2s; }
+  .wl-topic-card.open .wl-chevron { transform:rotate(90deg); }
+  .wl-topic-body { display:none; border-top:1px solid var(--border); padding:10px 12px; }
+  .wl-topic-card.open .wl-topic-body { display:block; }
+  /* test sub-section inside topic */
+  .wl-test-sec { margin-bottom:10px; }
+  .wl-test-sec:last-child { margin-bottom:0; }
+  .wl-test-label { font-size:0.75rem; font-weight:600; color:var(--accent2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+  .wrong-item { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+  .wrong-item-left .wi-test { font-size:0.75rem; color:var(--muted); }
+  .wrong-item-left .wi-q { font-size:0.9rem; font-weight:700; margin-top:1px; }
+  .wi-ans { font-size:1.15rem; font-weight:800; padding:5px 13px; border-radius:8px; background:var(--surface); }
+  .wi-ans.A { color:#5b8ef7; } .wi-ans.B { color:#c97bff; } .wi-ans.C { color:var(--gold); } .wi-ans.D { color:var(--green); } .wi-ans.E { color:var(--red); }
+  .empty-state { text-align:center; color:var(--muted); padding:48px 0; font-size:0.9rem; }
+  .empty-state .es-icon { font-size:2.5rem; margin-bottom:10px; }
+
+  /* RETRY */
+  .retry-header { background:var(--surface); border:1.5px solid var(--accent); border-radius:var(--radius); padding:14px 18px; margin-bottom:16px; }
+  .retry-label { font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--accent2); font-weight:600; margin-bottom:2px; }
+  .retry-title { font-size:1rem; font-weight:700; }
+
+  .hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>KPSS <span>Tarih</span></h1>
+  <p>Cevap Anahtarı &amp; Takip Sistemi</p>
+</header>
+
+<div class="container">
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('testler')">📚 Testler</button>
+    <button class="tab-btn" onclick="switchTab('yanlislar')">❌ Yanlışlarım</button>
+  </div>
+
+  <!-- ══════════ TAB: TESTLER ══════════ -->
+  <div id="tab-testler">
+
+    <!-- PHASE 1: TOPIC -->
+    <div id="phase-topic">
+      <div class="section-label">Konu Seçin</div>
+      <div class="topic-grid" id="topic-grid"></div>
+    </div>
+
+    <!-- PHASE 2: TEST SELECT -->
+    <div id="phase-test" class="hidden">
+      <button class="back-btn" onclick="goBack('topic')">&#8592; Konular</button>
+      <div class="topic-title" id="selected-topic-title"></div>
+      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:18px">Bir test seçin</p>
+      <div class="test-list" id="test-list"></div>
+    </div>
+
+    <!-- PHASE 3: QUIZ -->
+    <div id="phase-quiz" class="hidden">
+      <button class="back-btn" onclick="goBack('test')">&#8592; Testler</button>
+      <div class="quiz-header">
+        <div class="quiz-topic" id="quiz-topic-label"></div>
+        <div class="quiz-test-name" id="quiz-test-label"></div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-label" id="progress-label"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-box correct"><div class="stat-val" id="stat-correct">0</div><div class="stat-lbl">✓ Doğru</div></div>
+        <div class="stat-box wrong"><div class="stat-val" id="stat-wrong">0</div><div class="stat-lbl">✗ Yanlış</div></div>
+        <div class="stat-box remain"><div class="stat-val" id="stat-remain">-</div><div class="stat-lbl">Kalan</div></div>
+      </div>
+
+      <div class="answer-card" id="answer-card">
+        <div class="q-number" id="q-number"></div>
+        <div class="answer-bubble" id="answer-bubble"></div>
+        <div style="font-size:0.8rem;color:var(--muted)">Bu soruyu doğru yaptın mı?</div>
+      </div>
+
+      <!-- Mark buttons -->
+      <div class="mark-row">
+        <button class="mark-btn correct-btn" id="mark-correct" onclick="markAnswer(true)">✓ Doğru Yaptım</button>
+        <button class="mark-btn wrong-btn" id="mark-wrong" onclick="markAnswer(false)">✗ Yanlış Yaptım</button>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="showAllAnswers()">Tüm Cevaplar</button>
+        <button class="btn-primary" id="next-btn" onclick="nextQuestion()">İlerle →</button>
+      </div>
+    </div>
+
+    <!-- PHASE 4: FINISH -->
+    <div id="phase-finish" class="hidden">
+      <div class="finish-card">
+        <div class="finish-icon">🎉</div>
+        <h2>Test Tamamlandı!</h2>
+        <p id="finish-desc"></p>
+        <div class="finish-stats">
+          <div class="finish-stat fc"><div class="fs-val" id="fs-correct">0</div><div class="fs-lbl">Doğru</div></div>
+          <div class="finish-stat fw"><div class="fs-val" id="fs-wrong">0</div><div class="fs-lbl">Yanlış</div></div>
+          <div class="finish-stat fn"><div class="fs-val" id="fs-blank">0</div><div class="fs-lbl">İşaretlenmedi</div></div>
+        </div>
+        <div class="all-answers-grid" id="finish-grid"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-secondary" style="flex:1;min-width:120px" onclick="goBack('test')">← Testler</button>
+          <button class="btn-primary" id="retry-wrong-btn" onclick="startRetry()" style="flex:1;min-width:120px">🔁 Yanlışları Tekrar Çöz</button>
+          <button class="btn-secondary" style="flex:1;min-width:120px" onclick="goBack('topic')">Ana Menü</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5: RETRY -->
+    <div id="phase-retry" class="hidden">
+      <button class="back-btn" onclick="goBack('finish')">&#8592; Sonuç</button>
+      <div class="retry-header">
+        <div class="retry-label">🔁 Yanlışları Tekrar Çöz</div>
+        <div class="retry-title" id="retry-title"></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box correct"><div class="stat-val" id="retry-stat-correct">0</div><div class="stat-lbl">✓ Doğru</div></div>
+        <div class="stat-box wrong"><div class="stat-val" id="retry-stat-wrong">0</div><div class="stat-lbl">✗ Yanlış</div></div>
+        <div class="stat-box remain"><div class="stat-val" id="retry-stat-remain">-</div><div class="stat-lbl">Kalan</div></div>
+      </div>
+      <div class="answer-card">
+        <div class="q-number" id="retry-q-number"></div>
+        <div class="answer-bubble" id="retry-answer-bubble"></div>
+        <div style="font-size:0.8rem;color:var(--muted)">Bu sefer doğru yaptın mı?</div>
+      </div>
+      <div class="mark-row">
+        <button class="mark-btn correct-btn" id="retry-mark-correct" onclick="retryMark(true)">✓ Doğru Yaptım</button>
+        <button class="mark-btn wrong-btn" id="retry-mark-wrong" onclick="retryMark(false)">✗ Yanlış Yaptım</button>
+      </div>
+      <div class="nav-row">
+        <button class="btn-primary" id="retry-next-btn" onclick="retryNext()">İlerle →</button>
+      </div>
+    </div>
+
+  </div><!-- /tab-testler -->
+
+  <!-- ══════════ TAB: YANLIŞLARIM ══════════ -->
+  <div id="tab-yanlislar" class="hidden">
+    <div class="section-label">Kayıtlı Yanlış Sorularım</div>
+    <div id="wrong-list-container"></div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const DATA = {
+  "İslamiyet Öncesi Türk Tarihi": { tests: [
+    { name:"Test 1", no:1, answers:["C","E","B","C","A","C","B","E","E","D","D","B","C","B","C","A"] },
+    { name:"Test 2", no:2, answers:["E","B","E","A","D","E","A","C","A","E","B","B","E","D","E"] },
+    { name:"Test 3", no:3, answers:["A","B","B","D","B","E","D","C","E","D","B","E","B","E","B"] }
+  ]},
+  "Türk İslam Tarihi": { tests: [
+    { name:"Test 1", no:4, answers:["D","E","B","B","D","E","A","A","D","C","D","A","D","A","E"] },
+    { name:"Test 2", no:5, answers:["E","C","D","E","A","B","B","B","A","E","A","E","A","E","D"] },
+    { name:"Test 3", no:6, answers:["E","D","E","D","B","A","D","B","B","B","B","B","D","E","C"] },
+    { name:"Test 4", no:7, answers:["B","B","E","C","B","E","A","D","E","B","D","B","A","C","B"] }
+  ]},
+  "Osmanlı Devleti Kuruluş Dönemi": { tests: [
+    { name:"Test 1", no:8, answers:["E","B","C","A","B","C","C","B","D","E","E","C","E","A","D"] },
+    { name:"Test 2", no:9, answers:["E","B","D","B","C","E","A","B","C","D","E","B","B","B","D"] }
+  ]},
+  "Osmanlı Devleti Yükselme Dönemi": { tests: [
+    { name:"Test 1", no:10, answers:["D","C","D","D","E","B","E","C","C","A","E","E","B","C","A"] },
+    { name:"Test 2", no:11, answers:["E","B","E","A","D","B","D","B","E","C","E","A","E","D","B"] }
+  ]},
+  "Osmanlı Devleti Kültür ve Medeniyeti": { tests: [
+    { name:"Test 1", no:12, answers:["D","D","D","D","A","E","E","A","C","B","E","B","B","E","A"] },
+    { name:"Test 2", no:13, answers:["D","D","D","B","A","B","D","C","A","E","C","D","B","D","A"] },
+    { name:"Test 3", no:14, answers:["A","C","A","B","E","E","E","C","D","C","A","B","E","B","A"] },
+    { name:"Test 4", no:15, answers:["B","E","E","A","C","E","A","A","B","E","C","E","D","E","D"] },
+    { name:"Test 5", no:16, answers:["D","E","A","A","C","E","E","C","D","C","E","D","E","B","D"] },
+    { name:"Test 6", no:17, answers:["D","B","E","E","E","B","E","C","E","E","C","E","D","D"] }
+  ]},
+  "XVII. Yüzyılda Osmanlı Devleti (Duraklama)": { tests: [
+    { name:"Test 1", no:18, answers:["E","A","D","B","E","C","E","E","A","B","E","A","C","E","E"] },
+    { name:"Test 2", no:19, answers:["E","D","A","E","C","D","E","A","E","A","E","B","B","E","D"] }
+  ]},
+  "XVIII. Yüzyılda Osmanlı Devleti (Gerileme)": { tests: [
+    { name:"Test 1", no:20, answers:["E","C","A","B","E","B","C","E","E","A","B","A","E","B","D"] },
+    { name:"Test 2", no:21, answers:["A","C","D","E","C","E","D","B","A","D","E","A","B","C","C"] }
+  ]},
+  "XVIII-XIX. Yüzyılda Osmanlı Devleti (Dağılma)": { tests: [
+    { name:"Test 1", no:22, answers:["C","B","E","B","A","A","A","E","B","E","E","A","D","C","E"] },
+    { name:"Test 2", no:23, answers:["A","C","A","E","C","E","E","D","C","E","B","D","E","D","C"] },
+    { name:"Test 3", no:24, answers:["A","D","B","C","C","B","C","E","A","D","D","B","B","E","E"] },
+    { name:"Test 4", no:25, answers:["B","E","B","D","A","E","B","B","D","E","B","E","C","E","A"] },
+    { name:"Test 5", no:26, answers:["E","B","E","C","B","C","C","C","D","E","A","C","D","E","B"] },
+    { name:"Test 6", no:27, answers:["A","D","C","A","E","C","E","B","A","C","E","A","B","D","C"] }
+  ]},
+  "XX. Yüzyılda Osmanlı Devleti": { tests: [
+    { name:"Test 1", no:28, answers:["B","E","B","C","A","D","B","B","B","C","B","A","D","A","B"] },
+    { name:"Test 2", no:29, answers:["E","A","B","D","B","B","E","C","D","E","D","A","E","A","E"] }
+  ]},
+  "I. Dünya Savaşı": { tests: [
+    { name:"Test 1", no:30, answers:["B","B","A","B","C","A","D","B","C","A","B","C","B","E","A"] },
+    { name:"Test 2", no:31, answers:["E","B","D","B","C","D","E","B","E","A","B","E","D","B","A"] },
+    { name:"Test 3", no:32, answers:["E","A","B","D","A","C","D","A","E","E","D","D","A","C","B"] }
+  ]},
+  "Mondros Ateşkes Antlaşması ve Cemiyetler": { tests: [
+    { name:"Test 1", no:33, answers:["B","A","D","A","E","E","E","E","A","B","C","E","A","D","B"] },
+    { name:"Test 2", no:34, answers:["E","C","D","B","A","B","A","D","D","E","B","E","A","B","C"] }
+  ]},
+  "Millî Mücadele Hazırlık Dönemi": { tests: [
+    { name:"Test 1", no:35, answers:["E","C","B","E","B","B","E","D","C","E","A","B","B","D","C"] },
+    { name:"Test 2", no:36, answers:["A","E","A","D","A","E","C","C","B","C","B","B","C","A","D"] },
+    { name:"Test 3", no:37, answers:["C","E","B","E","D","B","E","A","C","B","D","C","E","B","A"] },
+    { name:"Test 4", no:38, answers:["D","B","D","E","D","D","C","E","D","C","A","C","E","C","E"] }
+  ]},
+  "I. TBMM Dönemi": { tests: [
+    { name:"Test 1", no:39, answers:["C","B","E","E","B","C","C","D","B","B","E","C","B","A","D"] },
+    { name:"Test 2", no:40, answers:["E","E","C","A","D","A","A","B","B","E","E","A","D","C","C"] },
+    { name:"Test 3", no:41, answers:["B","B","E","E","A","D","E","A","A","E","A","A","A","C","C"] }
+  ]},
+  "Muharebeler Dönemi": { tests: [
+    { name:"Test 1", no:42, answers:["E","B","A","B","B","C","B","C","B","C","B","A","E","A","D"] },
+    { name:"Test 2", no:43, answers:["B","C","D","B","D","A","B","C","B","E","C","C","C","B","C"] },
+    { name:"Test 3", no:44, answers:["D","E","D","B","D","C","D","B","B","C","B","E","B","B","B"] },
+    { name:"Test 4 (Osmanlı Dağılma IV)", no:45, answers:["B","D","E","E","B","C","E","A","D","A","E","E","E","B","C"] }
+  ]},
+  "Mudanya Ateşkes ve Lozan Barış Antlaşması": { tests: [
+    { name:"Test 1", no:46, answers:["E","A","E","B","B","C","B","B","C","E","C","E","A","E","E"] },
+    { name:"Test 2", no:47, answers:["C","D","D","D","C","B","C","B","E","D","D","A","C","E","C"] }
+  ]},
+  "Atatürk Dönemi İç Siyasi Gelişmeler": { tests: [
+    { name:"Test 1", no:48, answers:["D","A","D","B","D","A","E","B","E","C","E","D","E","D","B"] },
+    { name:"Test 2", no:49, answers:["B","C","B","C","A","E","C","D","A","E","B","D","D","C","B"] }
+  ]},
+  "Atatürk İnkılapları": { tests: [
+    { name:"Test 1", no:50, answers:["E","B","D","A","E","B","D","E","C","A","C","A","C","E","B"] },
+    { name:"Test 2", no:51, answers:["E","C","B","D","E","C","E","E","C","E","C","D","E","B","E"] },
+    { name:"Test 3", no:52, answers:["A","A","D","B","B","E","C","D","C","C","B","E","B","E","C"] }
+  ]},
+  "Atatürk Dönemi Dış Politika": { tests: [
+    { name:"Test 1", no:53, answers:["E","C","D","A","B","B","E","E","C","E","B","B","C","C","D"] },
+    { name:"Test 2", no:54, answers:["B","E","E","B","E","A","B","D","B","E","A","B","A","E","B"] }
+  ]},
+  "Atatürk İlkeleri": { tests: [
+    { name:"Test 1", no:55, answers:["B","D","E","C","B","B","E","C","E","C","C","D","E","C","B"] },
+    { name:"Test 2", no:56, answers:["A","E","C","B","E","D","B","E","D","E","E","A","C","B","D"] }
+  ]},
+  "Millî Mücadele Kahramanları": { tests: [
+    { name:"Test 1", no:57, answers:["B","D","C","C","B","C","E","C","B","E","A","B","C","D","E"] }
+  ]},
+  "İki Savaş Arası Dünya": { tests: [
+    { name:"Test 1", no:58, answers:["E","C","B","A","C","B","C","A","C","E","E","A","D","B","B"] },
+    { name:"Test 2", no:59, answers:["E","B","D","D","A","A","E","C","C","C","E","C","B","A","E"] }
+  ]},
+  "İkinci Dünya Savaşı": { tests: [
+    { name:"Test 1", no:60, answers:["A","B","C","A","D","D","D","C","E","C","D","E","C","C","E"] },
+    { name:"Test 2", no:61, answers:["E","D","C","B","A","D","B","B","B","B","C","A","C","D","C"] }
+  ]},
+  "Soğuk Savaş Dönemi": { tests: [
+    { name:"Test 1", no:62, answers:["C","C","E","B","C","E","C","B","B","E","D","B","C","E","A"] },
+    { name:"Test 2", no:63, answers:["A","B","A","E","E","D","E","D","C","E","E","B","B","A","A"] }
+  ]},
+  "Yumuşama Dönemi": { tests: [
+    { name:"Test 1", no:64, answers:["E","C","B","B","E","D","D","D","C","D","B","C","B","D","B"] },
+    { name:"Test 2", no:65, answers:["E","A","C","E","D","E","D","A","C","D","A","D","D","B","E"] }
+  ]},
+  "Küreselleşen Dünya": { tests: [
+    { name:"Test 1", no:66, answers:["A","C","B","E","A","B","D","C","B","A","C","A","D","E","B"] },
+    { name:"Test 2", no:67, answers:["C","D","C","E","E","B","C","A","D","B","C","C","E","E","D"] }
+  ]}
+};
+
+// ─── STORAGE HELPERS ──────────────────────────────────────────────────────────
+function loadStorage(key, def) {
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(def)); } catch(e) { return def; }
+}
+function saveStorage(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+// completedTests: { "topic|testname": { correct: [0,2,...], wrong: [1,3,...] } }
+let completedTests = loadStorage('kpss_completed_v2', {});
+// wrongAnswers: { "topic|testname": [qIndex, ...] }
+// (derived from completedTests)
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentTopic = null, currentTest = null, currentQ = 0;
+let sessionMarks = {}; // { qIndex: true/false }
+let retryList = [], retryIdx = 0, retryMarks = {};
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0 && tab==='testler')||(i===1 && tab==='yanlislar')));
+  document.getElementById('tab-testler').classList.toggle('hidden', tab !== 'testler');
+  document.getElementById('tab-yanlislar').classList.toggle('hidden', tab !== 'yanlislar');
+  if (tab === 'yanlislar') renderWrongList();
+}
+
+// ─── TOPICS ───────────────────────────────────────────────────────────────────
+function renderTopics() {
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = '';
+  Object.keys(DATA).forEach(topic => {
+    const tests = DATA[topic].tests;
+    const totalTests = tests.length;
+    const doneCount = tests.filter(t => completedTests[topic+'|'+t.name]).length;
+    const allDone = doneCount === totalTests && totalTests > 0;
+    const btn = document.createElement('button');
+    btn.className = 'topic-btn' + (allDone ? ' done' : '');
+    btn.innerHTML = `${allDone ? '<span class="done-badge">✓ Tamam</span>' : ''}
+      <div class="topic-name">${topic}</div>
+      <div class="topic-count">${totalTests} test · ${doneCount}/${totalTests} tamamlandı</div>`;
+    btn.onclick = () => selectTopic(topic);
+    grid.appendChild(btn);
+  });
+}
+
+function selectTopic(topic) {
+  currentTopic = topic;
+  document.getElementById('selected-topic-title').textContent = topic;
+  renderTests();
+  show('phase-test');
+}
+
+// ─── TESTS ────────────────────────────────────────────────────────────────────
+function renderTests() {
+  const list = document.getElementById('test-list');
+  list.innerHTML = '';
+  DATA[currentTopic].tests.forEach(test => {
+    const key = currentTopic+'|'+test.name;
+    const rec = completedTests[key];
+    const done = !!rec;
+    const correctN = rec ? (rec.correct||[]).length : 0;
+    const wrongN   = rec ? (rec.wrong||[]).length   : 0;
+    const total    = test.answers.length;
+
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex'; wrap.style.gap = '8px'; wrap.style.alignItems = 'stretch';
+
+    const btn = document.createElement('button');
+    btn.className = 'test-btn' + (done ? ' completed' : '');
+    btn.style.flex = '1';
+    btn.innerHTML = `<div>
+        <div class="test-name">${test.name}</div>
+        <div class="test-meta">${total} soru${done ? ` · ✓${correctN} ✗${wrongN}` : ''}</div>
+      </div>
+      <div class="test-btn-right">
+        ${done ? `<span class="completed-tag">✓ Tamam</span>` : `<span style="color:var(--muted);font-size:1.2rem">›</span>`}
+      </div>`;
+    btn.onclick = () => startTest(test);
+
+    wrap.appendChild(btn);
+
+    if (done) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del-btn';
+      delBtn.textContent = '🗑 Sil';
+      delBtn.onclick = (e) => { e.stopPropagation(); deleteRecord(key); };
+      wrap.appendChild(delBtn);
+    }
+
+    list.appendChild(wrap);
+  });
+}
+
+function deleteRecord(key) {
+  if (!confirm('Bu testin kaydını silmek istiyor musun? (Doğru/yanlış bilgileri silinecek)')) return;
+  delete completedTests[key];
+  saveStorage('kpss_completed_v2', completedTests);
+  renderTests();
+  renderTopics();
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+function startTest(test) {
+  currentTest = test;
+  currentQ = 0;
+  sessionMarks = {};
+  document.getElementById('quiz-topic-label').textContent = currentTopic;
+  document.getElementById('quiz-test-label').textContent = test.name;
+  updateQuizUI();
+  show('phase-quiz');
+}
+
+function updateQuizUI() {
+  const total = currentTest.answers.length;
+  const q = currentQ;
+  const ans = currentTest.answers[q];
+
+  document.getElementById('q-number').textContent = `Soru ${q+1} / ${total}`;
+  const bubble = document.getElementById('answer-bubble');
+  bubble.textContent = ans; bubble.className = 'answer-bubble '+ans;
+
+  const pct = ((q+1)/total)*100;
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-label').textContent = `${q+1} / ${total} gösterildi`;
+
+  // stats
+  const correctArr = Object.values(sessionMarks).filter(v=>v===true);
+  const wrongArr   = Object.values(sessionMarks).filter(v=>v===false);
+  document.getElementById('stat-correct').textContent = correctArr.length;
+  document.getElementById('stat-wrong').textContent   = wrongArr.length;
+  document.getElementById('stat-remain').textContent  = total - q;
+
+  // restore mark state
+  const mc = document.getElementById('mark-correct');
+  const mw = document.getElementById('mark-wrong');
+  mc.classList.remove('selected'); mw.classList.remove('selected');
+  if (sessionMarks[q] === true)  mc.classList.add('selected');
+  if (sessionMarks[q] === false) mw.classList.add('selected');
+
+  document.getElementById('next-btn').textContent = q === total-1 ? 'Testi Bitir ✓' : 'İlerle →';
+}
+
+function markAnswer(isCorrect) {
+  sessionMarks[currentQ] = isCorrect;
+  const mc = document.getElementById('mark-correct');
+  const mw = document.getElementById('mark-wrong');
+  mc.classList.toggle('selected', isCorrect === true);
+  mw.classList.toggle('selected', isCorrect === false);
+  // update stats
+  const correctArr = Object.values(sessionMarks).filter(v=>v===true);
+  const wrongArr   = Object.values(sessionMarks).filter(v=>v===false);
+  document.getElementById('stat-correct').textContent = correctArr.length;
+  document.getElementById('stat-wrong').textContent   = wrongArr.length;
+}
+
+function nextQuestion() {
+  const total = currentTest.answers.length;
+  if (currentQ < total-1) { currentQ++; updateQuizUI(); }
+  else finishTest();
+}
+
+function showAllAnswers() { finishTest(); }
+
+function finishTest() {
+  const key = currentTopic+'|'+currentTest.name;
+  const total = currentTest.answers.length;
+  const correctIdxs = [], wrongIdxs = [], blankIdxs = [];
+  for (let i=0;i<total;i++) {
+    if (sessionMarks[i]===true) correctIdxs.push(i);
+    else if (sessionMarks[i]===false) wrongIdxs.push(i);
+    else blankIdxs.push(i);
+  }
+  completedTests[key] = { correct: correctIdxs, wrong: wrongIdxs };
+  saveStorage('kpss_completed_v2', completedTests);
+
+  document.getElementById('finish-desc').textContent = `${currentTopic} – ${currentTest.name}`;
+  document.getElementById('fs-correct').textContent = correctIdxs.length;
+  document.getElementById('fs-wrong').textContent   = wrongIdxs.length;
+  document.getElementById('fs-blank').textContent   = blankIdxs.length;
+
+  const retryBtn = document.getElementById('retry-wrong-btn');
+  retryBtn.style.display = wrongIdxs.length > 0 ? '' : 'none';
+
+  const grid = document.getElementById('finish-grid');
+  grid.innerHTML = '';
+  currentTest.answers.forEach((ans,i) => {
+    const cell = document.createElement('div');
+    const isC = sessionMarks[i]===true, isW = sessionMarks[i]===false;
+    cell.className = 'ans-cell' + (isC?' correct-cell':isW?' wrong-cell':'');
+    cell.innerHTML = `<div class="ans-q">Soru ${i+1}</div>
+      <div class="ans-v ${ans}">${ans}</div>
+      <span class="mark-icon">${isC?'✓':isW?'✗':''}</span>`;
+    grid.appendChild(cell);
+  });
+
+  show('phase-finish');
+}
+
+// ─── RETRY ────────────────────────────────────────────────────────────────────
+function startRetry() {
+  const key = currentTopic+'|'+currentTest.name;
+  const rec = completedTests[key];
+  if (!rec || !rec.wrong || rec.wrong.length === 0) return;
+  retryList = rec.wrong.slice();
+  retryIdx = 0;
+  retryMarks = {};
+  document.getElementById('retry-title').textContent = `${currentTest.name} – ${retryList.length} yanlış soru`;
+  updateRetryUI();
+  show('phase-retry');
+}
+
+function updateRetryUI() {
+  const total = retryList.length;
+  const qIdx = retryList[retryIdx];
+  const ans = currentTest.answers[qIdx];
+
+  document.getElementById('retry-q-number').textContent = `Soru ${qIdx+1}  (${retryIdx+1}/${total})`;
+  const b = document.getElementById('retry-answer-bubble');
+  b.textContent = ans; b.className = 'answer-bubble '+ans;
+
+  const correctN = Object.values(retryMarks).filter(v=>v===true).length;
+  const wrongN   = Object.values(retryMarks).filter(v=>v===false).length;
+  document.getElementById('retry-stat-correct').textContent = correctN;
+  document.getElementById('retry-stat-wrong').textContent   = wrongN;
+  document.getElementById('retry-stat-remain').textContent  = total - retryIdx;
+
+  const mc = document.getElementById('retry-mark-correct');
+  const mw = document.getElementById('retry-mark-wrong');
+  mc.classList.toggle('selected', retryMarks[retryIdx]===true);
+  mw.classList.toggle('selected', retryMarks[retryIdx]===false);
+
+  document.getElementById('retry-next-btn').textContent = retryIdx===total-1 ? 'Tamamla ✓' : 'İlerle →';
+}
+
+function retryMark(isCorrect) {
+  retryMarks[retryIdx] = isCorrect;
+  document.getElementById('retry-mark-correct').classList.toggle('selected', isCorrect===true);
+  document.getElementById('retry-mark-wrong').classList.toggle('selected', isCorrect===false);
+  const correctN = Object.values(retryMarks).filter(v=>v===true).length;
+  const wrongN   = Object.values(retryMarks).filter(v=>v===false).length;
+  document.getElementById('retry-stat-correct').textContent = correctN;
+  document.getElementById('retry-stat-wrong').textContent   = wrongN;
+}
+
+function retryNext() {
+  if (retryIdx < retryList.length-1) { retryIdx++; updateRetryUI(); }
+  else {
+    // update wrong list: keep only those still wrong
+    const stillWrong = retryList.filter((_,i) => retryMarks[i] !== true);
+    const key = currentTopic+'|'+currentTest.name;
+    const rec = completedTests[key] || {};
+    const prevCorrect = rec.correct || [];
+    const newlyCorrect = retryList.filter((_,i) => retryMarks[i] === true);
+    completedTests[key] = { correct: [...prevCorrect, ...newlyCorrect], wrong: stillWrong };
+    saveStorage('kpss_completed_v2', completedTests);
+    alert(`Tekrar çözme tamamlandı!\n✓ Doğru: ${newlyCorrect.length}  ✗ Hâlâ yanlış: ${stillWrong.length}`);
+    show('phase-finish');
+    // refresh finish screen
+    finishRefresh();
+  }
+}
+
+function finishRefresh() {
+  const key = currentTopic+'|'+currentTest.name;
+  const rec = completedTests[key] || {};
+  document.getElementById('fs-correct').textContent = (rec.correct||[]).length;
+  document.getElementById('fs-wrong').textContent   = (rec.wrong||[]).length;
+  document.getElementById('fs-blank').textContent   = currentTest.answers.length - (rec.correct||[]).length - (rec.wrong||[]).length;
+  document.getElementById('retry-wrong-btn').style.display = (rec.wrong||[]).length > 0 ? '' : 'none';
+  const grid = document.getElementById('finish-grid');
+  grid.innerHTML = '';
+  const correctSet = new Set(rec.correct||[]), wrongSet = new Set(rec.wrong||[]);
+  currentTest.answers.forEach((ans,i) => {
+    const isC = correctSet.has(i), isW = wrongSet.has(i);
+    const cell = document.createElement('div');
+    cell.className = 'ans-cell'+(isC?' correct-cell':isW?' wrong-cell':'');
+    cell.innerHTML = `<div class="ans-q">Soru ${i+1}</div><div class="ans-v ${ans}">${ans}</div><span class="mark-icon">${isC?'✓':isW?'✗':''}</span>`;
+    grid.appendChild(cell);
+  });
+}
+
+// ─── WRONG LIST TAB ───────────────────────────────────────────────────────────
+function renderWrongList() {
+  const container = document.getElementById('wrong-list-container');
+  container.innerHTML = '';
+  let totalWrong = 0;
+
+  Object.keys(DATA).forEach(topic => {
+    // collect wrong tests for this topic
+    const testsWithWrong = [];
+    DATA[topic].tests.forEach(test => {
+      const key = topic+'|'+test.name;
+      const rec = completedTests[key];
+      if (!rec || !rec.wrong || rec.wrong.length === 0) return;
+      testsWithWrong.push({ test, wrong: rec.wrong });
+      totalWrong += rec.wrong.length;
+    });
+    if (testsWithWrong.length === 0) return;
+
+    const topicWrongCount = testsWithWrong.reduce((s,t) => s + t.wrong.length, 0);
+
+    const card = document.createElement('div');
+    card.className = 'wl-topic-card';
+
+    const header = document.createElement('div');
+    header.className = 'wl-topic-header';
+    header.innerHTML = `
+      <div>
+        <div class="wl-topic-name">${topic}</div>
+        <div class="wl-topic-meta">${testsWithWrong.length} test · ${topicWrongCount} yanlış soru</div>
+      </div>
+      <div class="wl-topic-right">
+        <span class="wl-wrong-badge">✗ ${topicWrongCount}</span>
+        <span class="wl-chevron">›</span>
+      </div>`;
+    header.onclick = () => { card.classList.toggle('open'); };
+
+    const body = document.createElement('div');
+    body.className = 'wl-topic-body';
+
+    testsWithWrong.forEach(({ test, wrong }) => {
+      const sec = document.createElement('div');
+      sec.className = 'wl-test-sec';
+      sec.innerHTML = `<div class="wl-test-label">${test.name} – ${wrong.length} yanlış</div>`;
+      wrong.forEach(qIdx => {
+        const ans = test.answers[qIdx];
+        const item = document.createElement('div');
+        item.className = 'wrong-item';
+        item.innerHTML = `<div class="wrong-item-left"><div class="wi-q">Soru ${qIdx+1}</div></div><div class="wi-ans ${ans}">${ans}</div>`;
+        sec.appendChild(item);
+      });
+      body.appendChild(sec);
+    });
+
+    card.appendChild(header);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+
+  if (totalWrong === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="es-icon">🎯</div><div>Henüz kayıtlı yanlışın yok!<br>Testleri çözerken yanlış yaptığın soruları işaretle.</div></div>`;
+  }
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+function goBack(to) {
+  if (to==='topic')  { renderTopics(); show('phase-topic'); }
+  if (to==='test')   { renderTests();  show('phase-test');  }
+  if (to==='finish') { show('phase-finish'); }
+}
+
+function show(id) {
+  ['phase-topic','phase-test','phase-quiz','phase-finish','phase-retry'].forEach(p => {
+    document.getElementById(p).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderTopics();
+</script>
+</body>
+</html>
